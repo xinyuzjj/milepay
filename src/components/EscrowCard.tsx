@@ -4,7 +4,7 @@ import { Loader2, ExternalLink, Clock, CheckCircle, XCircle, ArrowRightCircle } 
 import { toast } from 'sonner';
 import { Amount, formatAmount } from '@/onchain-money';
 import { buildTxExplorerUrl } from '@/onchain-facts';
-import { MILEPAY_ESCROW, ARC_TESTNET_CHAIN_ID } from '@/contract';
+import { MILEPAY_ESCROW, ARC_CHAIN_ID } from '@/contract';
 import type { EscrowData } from '@/types';
 
 interface Props {
@@ -46,7 +46,7 @@ function formatDeadline(ts: bigint) {
 export default function EscrowCard({ escrow, onAction }: Props) {
   const { address, chainId } = useAccount();
   const { switchChain } = useSwitchChain();
-  const wrongChain = chainId !== ARC_TESTNET_CHAIN_ID;
+  const wrongChain = chainId !== ARC_CHAIN_ID;
 
   const isPayer = address?.toLowerCase() === escrow.payer.toLowerCase();
   const isPayee = address?.toLowerCase() === escrow.payee.toLowerCase();
@@ -66,7 +66,7 @@ export default function EscrowCard({ escrow, onAction }: Props) {
   if (isSuccess && activeAction) {
     toast.success(`Escrow ${activeAction}!`, {
       description: txHash ? (
-        <a href={buildTxExplorerUrl(ARC_TESTNET_CHAIN_ID, txHash)} target="_blank" rel="noreferrer" className="underline">
+        <a href={buildTxExplorerUrl(ARC_CHAIN_ID, txHash)} target="_blank" rel="noreferrer" className="underline">
           View on ArcScan
         </a>
       ) : undefined,
@@ -78,7 +78,7 @@ export default function EscrowCard({ escrow, onAction }: Props) {
 
   const runAction = (fn: () => void, label: string) => {
     if (wrongChain) {
-      switchChain({ chainId: ARC_TESTNET_CHAIN_ID });
+      switchChain({ chainId: ARC_CHAIN_ID });
       return;
     }
     setActiveAction(label);
@@ -136,7 +136,7 @@ export default function EscrowCard({ escrow, onAction }: Props) {
   const role = isPayer ? 'Payer' : 'Payee';
 
   const formattedAmount = useMemo(
-    () => formatAmount(ARC_TESTNET_CHAIN_ID, Amount.fromRaw(escrow.amount, 6)),
+    () => formatAmount(ARC_CHAIN_ID, Amount.fromRaw(escrow.amount, 6)),
     [escrow.amount],
   );
 
@@ -185,7 +185,7 @@ export default function EscrowCard({ escrow, onAction }: Props) {
           <span>
             {counterpartyLabel}:{' '}
             <a
-              href={`https://explorer.testnet.arc.io/address/${counterparty}`}
+              href={`https://explorer.arc.io/address/${counterparty}`}
               target="_blank"
               rel="noreferrer"
               className="font-mono hover:underline"
@@ -206,7 +206,7 @@ export default function EscrowCard({ escrow, onAction }: Props) {
         )}
         {txHash && (
           <a
-            href={buildTxExplorerUrl(ARC_TESTNET_CHAIN_ID, txHash)}
+            href={buildTxExplorerUrl(ARC_CHAIN_ID, txHash)}
             target="_blank"
             rel="noreferrer"
             className="flex items-center gap-1 text-xs hover:underline"

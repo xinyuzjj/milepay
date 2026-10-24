@@ -6,7 +6,7 @@ import { erc20Abi } from 'viem';
 import { toast } from 'sonner';
 import { getUsdc, buildTxExplorerUrl } from '@/onchain-facts';
 import { parseAmount, formatAmount } from '@/onchain-money';
-import { MILEPAY_ESCROW, ARC_TESTNET_CHAIN_ID } from '@/contract';
+import { MILEPAY_ESCROW, ARC_CHAIN_ID } from '@/contract';
 
 interface Props {
   open: boolean;
@@ -14,12 +14,12 @@ interface Props {
   onCreated: () => void;
 }
 
-const USDC = getUsdc(ARC_TESTNET_CHAIN_ID)!;
+const USDC = getUsdc(ARC_CHAIN_ID)!;
 
 export default function CreateEscrowSheet({ open, onClose, onCreated }: Props) {
   const { address, chainId } = useAccount();
   const { switchChain } = useSwitchChain();
-  const wrongChain = chainId !== ARC_TESTNET_CHAIN_ID;
+  const wrongChain = chainId !== ARC_CHAIN_ID;
 
   const [payee, setPayee] = useState('');
   const [amount, setAmount] = useState('');
@@ -52,7 +52,7 @@ export default function CreateEscrowSheet({ open, onClose, onCreated }: Props) {
   // When approval confirms, send the create transaction
   const handleApproveSuccess = () => {
     if (!address || !payee || !amount || !deadline || !reviewHours || !title) return;
-    const parsed = parseAmount(ARC_TESTNET_CHAIN_ID, amount);
+    const parsed = parseAmount(ARC_CHAIN_ID, amount);
     const deadlineTs = BigInt(Math.floor(new Date(deadline).getTime() / 1000));
     const reviewSecs = BigInt(Math.floor(parseFloat(reviewHours) * 3600));
     create({
@@ -71,7 +71,7 @@ export default function CreateEscrowSheet({ open, onClose, onCreated }: Props) {
   if (createSuccess) {
     toast.success('Escrow created!', {
       description: createTx ? (
-        <a href={buildTxExplorerUrl(ARC_TESTNET_CHAIN_ID, createTx)} target="_blank" rel="noreferrer" className="underline">
+        <a href={buildTxExplorerUrl(ARC_CHAIN_ID, createTx)} target="_blank" rel="noreferrer" className="underline">
           View on ArcScan
         </a>
       ) : undefined,
@@ -95,10 +95,10 @@ export default function CreateEscrowSheet({ open, onClose, onCreated }: Props) {
     e.preventDefault();
     if (!address || !payee || !amount || !deadline || !reviewHours || !title) return;
     if (wrongChain) {
-      switchChain({ chainId: ARC_TESTNET_CHAIN_ID });
+      switchChain({ chainId: ARC_CHAIN_ID });
       return;
     }
-    const parsed = parseAmount(ARC_TESTNET_CHAIN_ID, amount);
+    const parsed = parseAmount(ARC_CHAIN_ID, amount);
     // Approve USDC
     approve({
       address: USDC.address as `0x${string}`,
@@ -282,7 +282,7 @@ export default function CreateEscrowSheet({ open, onClose, onCreated }: Props) {
                   <strong>
                     {(() => {
                       try {
-                        return formatAmount(ARC_TESTNET_CHAIN_ID, parseAmount(ARC_TESTNET_CHAIN_ID, amount));
+                        return formatAmount(ARC_CHAIN_ID, parseAmount(ARC_CHAIN_ID, amount));
                       } catch {
                         return amount;
                       }

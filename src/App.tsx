@@ -6,7 +6,7 @@ import { TokenUSDC } from '@web3icons/react';
 import type { Abi } from 'viem';
 import CreateEscrowSheet from '@/components/CreateEscrowSheet';
 import EscrowCard from '@/components/EscrowCard';
-import { MILEPAY_ESCROW, ARC_TESTNET_CHAIN_ID } from '@/contract';
+import { MILEPAY_ESCROW, ARC_CHAIN_ID } from '@/contract';
 import type { EscrowData } from '@/types';
 
 type RawEscrow = {
@@ -30,7 +30,7 @@ export default function App() {
     address: MILEPAY_ESCROW.address,
     abi: MILEPAY_ESCROW.abi as Abi,
     functionName: 'escrowCount',
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
     query: { refetchInterval: 8_000 },
   });
 
@@ -42,7 +42,7 @@ export default function App() {
     abi: MILEPAY_ESCROW.abi as Abi,
     functionName: 'getEscrow' as const,
     args: [BigInt(i + 1)] as readonly [bigint],
-    chainId: ARC_TESTNET_CHAIN_ID,
+    chainId: ARC_CHAIN_ID,
   }));
 
   const { data: escrowResults, refetch } = useReadContracts({
