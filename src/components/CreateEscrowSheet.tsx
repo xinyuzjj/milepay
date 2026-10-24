@@ -133,11 +133,11 @@ export default function CreateEscrowSheet({ open, onClose, onCreated }: Props) {
           exit={{ opacity: 0 }}
           onClick={handleClose}
         >
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
           <motion.section
             className="relative w-full max-w-md overflow-hidden rounded-t-3xl"
             style={{
-              background: 'rgba(255,255,255,0.93)',
+              background: 'rgba(9,18,34,0.96)',
               backdropFilter: 'blur(40px) saturate(200%)',
               WebkitBackdropFilter: 'blur(40px) saturate(200%)',
             }}
@@ -161,7 +161,7 @@ export default function CreateEscrowSheet({ open, onClose, onCreated }: Props) {
               </h2>
               <button
                 onClick={handleClose}
-                className="rounded-full p-1.5 transition hover:bg-black/5"
+                className="rounded-full p-1.5 transition hover:bg-white/10"
                 aria-label="Close"
               >
                 <X className="size-4" style={{ color: 'var(--muted)' }} />

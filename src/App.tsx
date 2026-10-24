@@ -4,7 +4,7 @@ import { useAccount, useReadContracts } from 'wagmi';
 import {
   Plus, ShieldCheck, ExternalLink, Copy, Eye, Scale, CalendarClock,
   Bot, Landmark, Lock, PackageCheck, Vote, Code2, ArrowUpRight,
-  Wallet, CircleDollarSign,
+  Wallet, CircleDollarSign, Milestone,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Amount, formatAmount } from '@/onchain-money';
@@ -242,46 +242,34 @@ export default function App() {
   }, [highlightId, escrows.length]);
 
   return (
-    <div className="relative min-h-dvh overflow-x-clip" style={{ background: 'var(--bg-gradient)' }}>
-      {/* ambience */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px]" aria-hidden>
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(60% 90% at 15% 0%, rgba(16,97,166,0.14) 0%, transparent 60%),' +
-              'radial-gradient(50% 80% at 85% 0%, rgba(217,119,6,0.10) 0%, transparent 55%),' +
-              'radial-gradient(40% 60% at 55% 10%, rgba(124,58,237,0.07) 0%, transparent 60%)',
-          }}
-        />
-      </div>
-
+    <div className="relative min-h-dvh overflow-x-clip" style={{ background: 'var(--bg-gradient)', backgroundColor: 'var(--bg)' }}>
       {/* Header */}
       <header
         className="sticky top-0 z-40 border-b backdrop-blur-xl"
-        style={{ background: 'rgba(255,255,255,0.78)', borderColor: 'var(--border)' }}
+        style={{ background: 'rgba(5,11,22,0.82)', borderColor: 'var(--border)' }}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2.5">
-            <span
-              className="display flex size-9 items-center justify-center rounded-xl text-lg font-bold text-white"
-              style={{ background: 'linear-gradient(135deg,#1061a6,#122d45)' }}
-            >
-              M
+            <span className="relative flex size-9 items-center justify-center">
+              <span
+                className="absolute inset-0 rounded-full"
+                style={{ background: 'conic-gradient(from 210deg, #5ea9ff, #1061a6 45%, #0a2c50 70%, #5ea9ff)' }}
+              />
+              <span className="display relative text-base font-bold text-white">M</span>
             </span>
             <div className="leading-tight">
               <p className="display text-base font-bold" style={{ color: 'var(--ink)' }}>MilePay</p>
-              <p className="text-[11px] font-medium" style={{ color: 'var(--muted)' }}>Escrow · Jury · Payroll</p>
+              <p className="mono text-[10px] uppercase tracking-[0.14em]" style={{ color: 'var(--muted)' }}>Milestone escrow · Arc</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <span
               className="hidden items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold sm:flex"
-              style={{ background: 'rgba(26,128,71,0.10)', color: 'var(--success)' }}
+              style={{ background: 'rgba(47,191,113,0.12)', color: '#4ade80' }}
             >
               <span className="relative flex size-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-60" />
-                <span className="relative inline-flex size-2 rounded-full bg-green-600" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-60" />
+                <span className="relative inline-flex size-2 rounded-full bg-green-400" />
               </span>
               Arc Mainnet · Live
             </span>
@@ -292,31 +280,76 @@ export default function App() {
 
       <main className="relative mx-auto max-w-6xl px-4 pb-16 sm:px-6">
         {/* Hero */}
-        <section className="pt-10 sm:pt-14">
-          <p
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
-            style={{ background: 'rgba(16,97,166,0.10)', color: 'var(--accent-hover)' }}
-          >
-            <Landmark className="size-3.5" /> Built with Arc Studio · Settled in real USDC
+        <section className="pt-10 sm:pt-16">
+          <p className="mono inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: 'var(--accent-hover)' }}>
+            <Milestone className="size-3.5" /> Milestone escrow · Public jury · Payroll · Agents
           </p>
-          <h1
-            className="display mt-4 max-w-3xl text-4xl font-bold leading-[1.05] sm:text-6xl"
-            style={{ color: 'var(--ink)' }}
-          >
-            Work gets paid when work gets done.
+          <h1 className="display mt-5 max-w-4xl text-[42px] font-bold leading-[1.02] sm:text-7xl" style={{ color: 'var(--ink)' }}>
+            Paid by the milestone.
+            <br />
+            <span style={{ background: 'linear-gradient(92deg,#5ea9ff 10%,#9fd0ff 45%,#f5a524 95%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
+              Not by the promise.
+            </span>
           </h1>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed sm:text-lg" style={{ color: 'var(--ink-2)' }}>
-            MilePay locks payment in a milestone escrow, pays out when delivery is confirmed,
-            lets the <strong>public jury</strong> settle disputes, streams <strong>payroll</strong> period
-            by period — and lets <strong>AI agents hire AI agents</strong> with the same guarantees.
+          <p className="mt-5 max-w-2xl text-base leading-relaxed sm:text-lg" style={{ color: 'var(--ink-2)' }}>
+            On Arc, money travels a track with checkpoints. The payer funds a milestone, the payee
+            delivers against it, and USDC is released only when the work checks out — with a{' '}
+            <strong style={{ color: 'var(--ink)' }}>public jury</strong> for disputes,{' '}
+            <strong style={{ color: 'var(--ink)' }}>streaming payroll</strong> for salaries, and the
+            same rails for <strong style={{ color: 'var(--ink)' }}>AI agents hiring AI agents</strong>.
           </p>
 
-          {/* Stats */}
-          <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <Stat label="Escrows on V2" value={String(stats.escrows)} icon={Lock} />
-            <Stat label="Locked right now (USDC)" value={stats.locked} icon={CircleDollarSign} />
-            <Stat label="Settled to payees (USDC)" value={stats.settled} icon={ShieldCheck} />
-            <Stat label="Payroll streams" value={String(stats.streams)} icon={CalendarClock} />
+          {/* The Arc Track */}
+          <div
+            className="relative mt-10 overflow-hidden rounded-[28px] px-4 pb-2 pt-4 sm:px-8"
+            style={{ background: 'rgba(10,22,40,0.55)', border: '1px solid var(--border)', boxShadow: 'inset 0 1px 0 rgba(148,184,232,0.12), 0 24px 60px rgba(0,0,0,0.35)' }}
+          >
+            <svg viewBox="0 0 1200 240" className="w-full" role="img" aria-label="The milestone track: Fund, Deliver, Review, Settle">
+              <path d="M -20 218 C 300 30, 900 30, 1220 218" fill="none" stroke="rgba(94,169,255,0.18)" strokeWidth="10" strokeLinecap="round" />
+              <path className="arc-line" d="M -20 218 C 300 30, 900 30, 1220 218" fill="none" stroke="#5ea9ff" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
+            <div className="arc-coin pointer-events-none absolute left-0 top-4 hidden h-full w-full sm:block" aria-hidden>
+              <span
+                className="display flex size-9 items-center justify-center rounded-full text-sm font-bold text-white"
+                style={{ background: 'radial-gradient(circle at 32% 30%, #9fd0ff, #2775ca 55%, #0b4d85)', boxShadow: '0 0 24px rgba(94,169,255,0.8), 0 4px 14px rgba(0,0,0,0.5)', transform: 'translate(-50%,-50%)' }}
+              >
+                $
+              </span>
+            </div>
+            <div className="relative -mt-[19%] grid grid-cols-4 sm:-mt-[16%]">
+              {[
+                { n: '01', label: 'Fund', sub: 'USDC locks on Arc' },
+                { n: '02', label: 'Deliver', sub: 'Work is submitted' },
+                { n: '03', label: 'Review', sub: 'Or the jury decides' },
+                { n: '04', label: 'Settle', sub: 'Paid in seconds' },
+              ].map((s, i) => (
+                <div key={s.n} className={`flex flex-col ${i === 1 || i === 2 ? 'items-center text-center' : i === 3 ? 'items-end text-right' : ''}`}>
+                  <span
+                    className={`flex size-8 items-center justify-center rounded-full border text-[11px] font-bold ${i === 0 ? 'station-live' : ''}`}
+                    style={{
+                      background: i === 0 ? 'var(--accent)' : 'rgba(10,22,40,0.9)',
+                      borderColor: 'rgba(94,169,255,0.5)',
+                      color: '#fff',
+                    }}
+                  >
+                    {s.n}
+                  </span>
+                  <span className="display mt-2 text-sm font-bold sm:text-base" style={{ color: 'var(--ink)' }}>{s.label}</span>
+                  <span className="hidden text-xs sm:block" style={{ color: 'var(--muted)' }}>{s.sub}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Vitals */}
+            <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl lg:grid-cols-4" style={{ background: 'var(--border)' }}>
+              <Vital label="Escrows on V2" value={String(stats.escrows)} />
+              <Vital label="Locked on the track" value={`${stats.locked} USDC`} />
+              <Vital label="Settled to payees" value={`${stats.settled} USDC`} accent />
+              <Vital label="Payroll streams" value={String(stats.streams)} />
+            </div>
+            <p className="mono py-3 text-center text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--subtle)' }}>
+              Every number above is read live from the MilePayV2 contract · Arc Mainnet 5042
+            </p>
           </div>
 
           {/* Live dispute banner */}
@@ -324,20 +357,20 @@ export default function App() {
             <button
               onClick={() => { setTab('escrows'); setFilter('disputed'); }}
               className="mt-5 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition hover:opacity-90"
-              style={{ background: 'linear-gradient(90deg, rgba(217,119,6,0.16), rgba(217,119,6,0.06))', border: '1px solid rgba(217,119,6,0.35)' }}
+              style={{ background: 'linear-gradient(90deg, rgba(245,165,36,0.20), rgba(245,165,36,0.05))', border: '1px solid rgba(245,165,36,0.45)' }}
             >
-              <Scale className="size-5 shrink-0" style={{ color: '#b45309' }} />
-              <span className="text-sm" style={{ color: '#92400e' }}>
+              <Scale className="size-5 shrink-0" style={{ color: 'var(--amber)' }} />
+              <span className="text-sm" style={{ color: '#fcd9a0' }}>
                 <strong>A jury case is open.</strong> Escrow #{disputed[0].id.toString()} — “{disputed[0].title}” —
                 is in dispute on mainnet. Read both sides' evidence and cast your vote.
               </span>
-              <ArrowUpRight className="ml-auto size-4 shrink-0" style={{ color: '#b45309' }} />
+              <ArrowUpRight className="ml-auto size-4 shrink-0" style={{ color: 'var(--amber)' }} />
             </button>
           )}
 
           {/* Tabs */}
-          <div className="mt-8 flex flex-wrap items-center gap-2">
-            <div className="flex rounded-2xl p-1" style={{ background: 'rgba(18,45,69,0.06)' }}>
+          <div className="mt-9 flex flex-wrap items-center gap-2">
+            <div className="flex rounded-2xl p-1" style={{ background: 'rgba(148,184,232,0.08)', border: '1px solid var(--border)' }}>
               <TabBtn active={tab === 'escrows'} onClick={() => setTab('escrows')} icon={Lock} label="Escrows" />
               <TabBtn active={tab === 'payroll'} onClick={() => setTab('payroll')} icon={CalendarClock} label="Payroll" />
               <TabBtn active={tab === 'agents'} onClick={() => setTab('agents')} icon={Bot} label="Agents" />
@@ -346,14 +379,14 @@ export default function App() {
               <button
                 onClick={() => setCreateEscrowOpen(true)}
                 className="flex items-center gap-1.5 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 active:scale-95"
-                style={{ background: 'var(--accent)' }}
+                style={{ background: 'linear-gradient(135deg,#2f7fd0,#1061a6)', boxShadow: '0 6px 20px rgba(38,110,190,0.4)' }}
               >
                 <Plus className="size-4" /> New escrow
               </button>
               <button
                 onClick={() => setCreateStreamOpen(true)}
                 className="flex items-center gap-1.5 rounded-2xl px-4 py-2.5 text-sm font-semibold transition hover:opacity-80 active:scale-95"
-                style={{ background: 'rgba(18,45,69,0.08)', color: 'var(--ink)' }}
+                style={{ background: 'rgba(148,184,232,0.10)', color: 'var(--ink)', border: '1px solid var(--border)' }}
               >
                 <Plus className="size-4" /> New payroll
               </button>
@@ -381,8 +414,8 @@ export default function App() {
                       onClick={() => setFilter(key)}
                       className="rounded-full px-3 py-1.5 text-xs font-semibold transition"
                       style={{
-                        background: filter === key ? 'var(--ink)' : 'rgba(18,45,69,0.06)',
-                        color: filter === key ? '#fff' : 'var(--ink-2)',
+                        background: filter === key ? 'var(--ink)' : 'rgba(148,184,232,0.08)',
+                        color: filter === key ? '#050b16' : 'var(--ink-2)',
                       }}
                     >
                       {label}
@@ -470,7 +503,7 @@ export default function App() {
                     href={`${EXPLORER}/tx/${p.tx}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="block rounded-xl px-2.5 py-2 transition hover:bg-black/[0.03]"
+                    className="block rounded-xl px-2.5 py-2 transition hover:bg-white/[0.04]"
                   >
                     <span className="flex items-center gap-1 text-xs font-bold" style={{ color: 'var(--ink)' }}>
                       {p.label} <ArrowUpRight className="size-3" />
@@ -489,6 +522,16 @@ export default function App() {
                 <li>V1 stays live and untouched; V2 is a new contract, audited in Studio and covered by 35 tests.</li>
               </ul>
             </div>
+
+            <div className="rounded-3xl p-5" style={{ background: 'linear-gradient(150deg, rgba(38,110,190,0.25), rgba(10,22,40,0.4))', border: '1px solid var(--border)' }}>
+              <p className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: 'var(--accent-hover)' }}>
+                <Landmark className="size-4" /> Built with Arc Studio
+              </p>
+              <p className="mt-1.5 text-xs leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                Designed, audited and deployed through Arc Studio, then settled in real USDC on Arc
+                Mainnet — where USDC is both the gas token and the ERC-20. One balance, no bridging.
+              </p>
+            </div>
           </aside>
         </div>
 
@@ -502,7 +545,7 @@ export default function App() {
             <a className="hover:underline" href={`${EXPLORER}/address/${MILEPAY_ESCROW_V1.address}`} target="_blank" rel="noreferrer">V1 {shortAddr(MILEPAY_ESCROW_V1.address)}</a>
             <a className="hover:underline" href={REPO_URL} target="_blank" rel="noreferrer">GitHub</a>
             <a className="hover:underline" href={STUDIO_URL} target="_blank" rel="noreferrer">Arc Studio</a>
-            <span className="ml-auto">USDC on Arc settles as both the gas token and the ERC-20 — one balance, no bridging.</span>
+            <span className="ml-auto">Paid by the milestone, not by the promise.</span>
           </div>
         </footer>
       </main>
@@ -513,13 +556,11 @@ export default function App() {
   );
 }
 
-function Stat({ label, value, icon: Icon }: { label: string; value: string; icon: typeof Lock }) {
+function Vital({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className="rounded-3xl p-4" style={{ background: 'var(--surface-strong)', border: '1px solid var(--border)' }}>
-      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--muted)' }}>
-        <Icon className="size-3.5" /> {label}
-      </p>
-      <p className="display mt-1.5 text-2xl font-bold tabular-nums sm:text-3xl" style={{ color: 'var(--ink)' }}>{value}</p>
+    <div className="px-4 py-3.5" style={{ background: 'rgba(8,17,32,0.85)' }}>
+      <p className="mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: 'var(--muted)' }}>{label}</p>
+      <p className="mono mt-1 text-xl font-bold tabular-nums sm:text-2xl" style={{ color: accent ? '#4ade80' : 'var(--ink)' }}>{value}</p>
     </div>
   );
 }
@@ -530,9 +571,9 @@ function TabBtn({ active, onClick, icon: Icon, label }: { active: boolean; onCli
       onClick={onClick}
       className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition"
       style={{
-        background: active ? 'var(--surface-strong)' : 'transparent',
-        color: active ? 'var(--ink)' : 'var(--muted)',
-        boxShadow: active ? '0 1px 4px rgba(18,45,69,0.12)' : 'none',
+        background: active ? 'rgba(94,169,255,0.16)' : 'transparent',
+        color: active ? '#cfe7ff' : 'var(--muted)',
+        boxShadow: active ? 'inset 0 0 0 1px rgba(94,169,255,0.35)' : 'none',
       }}
     >
       <Icon className="size-4" /> {label}
@@ -543,7 +584,7 @@ function TabBtn({ active, onClick, icon: Icon, label }: { active: boolean; onCli
 function RailStep({ icon: Icon, title, text }: { icon: typeof Lock; title: string; text: string }) {
   return (
     <li className="flex gap-2.5">
-      <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg" style={{ background: 'rgba(16,97,166,0.10)', color: 'var(--accent-hover)' }}>
+      <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg" style={{ background: 'rgba(94,169,255,0.12)', color: 'var(--accent-hover)' }}>
         <Icon className="size-4" />
       </span>
       <span>
@@ -601,7 +642,7 @@ function AgentsPanel() {
               href={`${EXPLORER}/tx/${t.tx}`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-black/[0.03]"
+              className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-white/[0.04]"
               style={{ color: 'var(--ink-2)' }}
             >
               <ShieldCheck className="size-4 shrink-0" style={{ color: 'var(--success)' }} />

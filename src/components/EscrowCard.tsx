@@ -30,21 +30,21 @@ const STATE_LABELS: Record<number, string> = {
 };
 
 const STATE_COLORS: Record<number, string> = {
-  0: '#1a8047',
-  1: '#1061a6',
-  2: '#122d45',
-  3: '#6b6580',
-  4: '#b45309',
-  5: '#5b21b6',
+  0: '#4ade80',
+  1: '#5ea9ff',
+  2: '#eaf2fb',
+  3: '#8498b3',
+  4: '#f5a524',
+  5: '#c4b5fd',
 };
 
 const STATE_BG: Record<number, string> = {
-  0: 'rgba(26,128,71,0.10)',
-  1: 'rgba(16,97,166,0.10)',
-  2: 'rgba(18,45,69,0.10)',
-  3: 'rgba(107,101,128,0.10)',
-  4: 'rgba(217,119,6,0.13)',
-  5: 'rgba(124,58,237,0.10)',
+  0: 'rgba(47,191,113,0.14)',
+  1: 'rgba(94,169,255,0.14)',
+  2: 'rgba(234,242,251,0.12)',
+  3: 'rgba(132,152,179,0.14)',
+  4: 'rgba(245,165,36,0.16)',
+  5: 'rgba(167,139,250,0.16)',
 };
 
 const EVIDENCE_EVENT = parseAbiItem('event EvidenceSubmitted(uint256 indexed id, address indexed party, string uri)');
@@ -148,6 +148,7 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
   const call = (functionName: string, args: unknown[], label: string) =>
     run(
       () => writeContract({
+        chainId: ARC_CHAIN_ID,
         address: MILEPAY_ESCROW.address,
         abi: MILEPAY_ESCROW.abi,
         functionName,
@@ -184,21 +185,22 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
 
   const steps = escrow.state === 3
     ? [
-        { label: 'Funded', done: true, icon: Lock },
-        { label: 'Refunded', done: true, icon: XCircle },
+        { label: 'Funded', done: true, current: false, icon: Lock },
+        { label: 'Refunded', done: true, current: false, icon: XCircle },
       ]
     : escrow.state >= 4
       ? [
-          { label: 'Funded', done: true, icon: Lock },
-          { label: 'Delivered', done: escrow.deliveredAt > 0n, icon: PackageCheck },
-          { label: 'Disputed', done: true, icon: Scale },
-          { label: 'Resolved', done: escrow.state === 5, icon: Gavel },
+          { label: 'Funded', done: true, current: false, icon: Lock },
+          { label: 'Delivered', done: escrow.deliveredAt > 0n, current: false, icon: PackageCheck },
+          { label: 'Disputed', done: true, current: escrow.state === 4, icon: Scale },
+          { label: 'Resolved', done: escrow.state === 5, current: false, icon: Gavel },
         ]
       : [
-          { label: 'Funded', done: true, icon: Lock },
-          { label: 'Delivered', done: escrow.state >= 1, icon: PackageCheck },
-          { label: 'Released', done: escrow.state === 2, icon: CheckCircle },
+          { label: 'Funded', done: true, current: escrow.state === 0, icon: Lock },
+          { label: 'Delivered', done: escrow.state >= 1, current: escrow.state === 1, icon: PackageCheck },
+          { label: 'Released', done: escrow.state === 2, current: false, icon: CheckCircle },
         ];
+  const trackAmber = escrow.state >= 4;
 
   const totalVotes = escrow.payeeVotes + escrow.payerVotes;
   const payeePct = totalVotes === 0n ? 50 : Number((escrow.payeeVotes * 100n) / totalVotes);
@@ -211,8 +213,8 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
         background: 'var(--surface-strong)',
         border: highlighted ? '2px solid var(--accent-hover)' : '1px solid var(--border)',
         boxShadow: highlighted
-          ? '0 8px 32px rgba(16,97,166,0.18)'
-          : '0 1px 4px rgba(18,45,69,0.06)',
+          ? '0 8px 32px rgba(62,143,224,0.30)'
+          : '0 10px 30px rgba(0,0,0,0.28)',
       }}
     >
       {/* Header */}
@@ -221,7 +223,7 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
           <p className="display font-semibold truncate text-base leading-tight" style={{ color: 'var(--ink)' }}>
             {escrow.title || `Escrow #${escrow.id.toString()}`}
           </p>
-          <p className="mt-0.5 text-xs" style={{ color: 'var(--muted)' }}>
+          <p className="mono mt-1 text-[11px] uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
             #{escrow.id.toString()}{role ? ` · ${role}` : ''}
             {escrow.juryWindowSeconds > 0n && escrow.state < 4 ? ' · jury enabled' : ''}
           </p>
@@ -230,7 +232,7 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
           <button
             onClick={shareEscrow}
             title="Copy link to this escrow"
-            className="rounded-lg p-1.5 transition hover:bg-black/5"
+            className="rounded-lg p-1.5 transition hover:bg-white/10"
             style={{ color: 'var(--muted)' }}
           >
             <Share2 className="size-3.5" />
@@ -252,28 +254,43 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
         <span className="text-sm font-medium" style={{ color: 'var(--subtle)' }}>USDC</span>
       </div>
 
-      {/* Timeline */}
-      <div className="mt-4 flex items-center" aria-label="Escrow progress">
+      {/* Route track */}
+      <div className="mt-5 flex items-start" aria-label="Milestone track">
         {steps.map((s, i) => (
-          <div key={s.label} className="flex items-center" style={{ flex: i < steps.length - 1 ? '1 1 0%' : '0 0 auto' }}>
-            <div className="flex flex-col items-center gap-1">
+          <div key={s.label} className="flex items-start" style={{ flex: i < steps.length - 1 ? '1 1 0%' : '0 0 auto' }}>
+            <div className="flex flex-col items-center gap-1.5">
               <span
-                className="flex size-6 items-center justify-center rounded-full"
+                className={`flex size-7 items-center justify-center rounded-full ${s.current ? 'station-live' : ''}`}
                 style={{
-                  background: s.done ? 'var(--accent)' : 'rgba(18,45,69,0.10)',
+                  background: s.done
+                    ? trackAmber
+                      ? 'linear-gradient(135deg,#f5a524,#b45309)'
+                      : 'linear-gradient(135deg,#3e8fe0,#1061a6)'
+                    : 'rgba(148,184,232,0.10)',
                   color: s.done ? '#fff' : 'var(--subtle)',
+                  boxShadow: s.done ? '0 0 14px rgba(62,143,224,0.35)' : 'none',
+                  border: s.done ? 'none' : '1px solid var(--border)',
                 }}
               >
-                <s.icon className="size-3" />
+                <s.icon className="size-3.5" />
               </span>
-              <span className="text-[10px] font-medium" style={{ color: s.done ? 'var(--ink-2)' : 'var(--subtle)' }}>
+              <span
+                className="mono text-[9px] font-semibold uppercase tracking-[0.12em]"
+                style={{ color: s.done ? 'var(--ink-2)' : 'var(--subtle)' }}
+              >
                 {s.label}
               </span>
             </div>
             {i < steps.length - 1 && (
               <div
-                className="mx-1.5 mb-4 h-0.5 flex-1 rounded"
-                style={{ background: steps[i + 1].done ? 'var(--accent)' : 'rgba(18,45,69,0.12)' }}
+                className="mx-1.5 mt-3.5 h-[3px] flex-1 rounded-full"
+                style={{
+                  background: steps[i + 1].done
+                    ? trackAmber
+                      ? 'linear-gradient(90deg,#f5a524,#b45309)'
+                      : 'linear-gradient(90deg,#3e8fe0,#1061a6)'
+                    : 'rgba(148,184,232,0.14)',
+                }}
               />
             )}
           </div>
@@ -285,8 +302,8 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
         <div
           className="mt-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
           style={{
-            background: deadlinePassed ? 'rgba(186,43,76,0.10)' : 'rgba(18,45,69,0.06)',
-            color: deadlinePassed ? 'var(--danger)' : 'var(--ink-2)',
+            background: deadlinePassed ? 'rgba(251,113,133,0.12)' : 'rgba(148,184,232,0.10)',
+            color: deadlinePassed ? '#fda4af' : 'var(--ink-2)',
           }}
         >
           <Timer className="size-3.5" />
@@ -299,8 +316,8 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
         <div
           className="mt-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
           style={{
-            background: reviewWindowPassed ? 'rgba(26,128,71,0.12)' : 'rgba(16,97,166,0.10)',
-            color: reviewWindowPassed ? 'var(--success)' : 'var(--accent-hover)',
+            background: reviewWindowPassed ? 'rgba(47,191,113,0.14)' : 'rgba(94,169,255,0.12)',
+            color: reviewWindowPassed ? '#4ade80' : 'var(--accent-hover)',
           }}
         >
           <Timer className="size-3.5" />
@@ -325,14 +342,14 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
               {formatAddress(counterparty)}
             </a>
           </span>
-          <button onClick={() => copyText(counterparty, 'Address copied')} title="Copy address" className="rounded p-0.5 transition hover:bg-black/5">
+          <button onClick={() => copyText(counterparty, 'Address copied')} title="Copy address" className="rounded p-0.5 transition hover:bg-white/10">
             <Copy className="size-3" />
           </button>
           {!isParty && (
             <span className="truncate font-mono">payee {formatAddress(escrow.payee)}</span>
           )}
         </div>
-        <div className="flex items-center gap-1.5 text-xs" style={{ color: deadlinePassed && escrow.state === 0 ? 'var(--danger)' : 'var(--muted)' }}>
+        <div className="flex items-center gap-1.5 text-xs" style={{ color: deadlinePassed && escrow.state === 0 ? '#fda4af' : 'var(--muted)' }}>
           <Clock className="size-3.5 shrink-0" />
           <span>Deadline: {formatWhen(escrow.deadline)}</span>
         </div>
@@ -397,13 +414,13 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
       {escrow.state === 4 && (
         <div
           className="mt-4 rounded-2xl p-4"
-          style={{ background: 'rgba(217,119,6,0.07)', border: '1px solid rgba(217,119,6,0.25)' }}
+          style={{ background: 'rgba(245,165,36,0.07)', border: '1px solid rgba(245,165,36,0.32)' }}
         >
           <div className="flex items-center justify-between gap-2">
-            <p className="flex items-center gap-1.5 text-sm font-bold" style={{ color: '#92400e' }}>
+            <p className="flex items-center gap-1.5 text-sm font-bold" style={{ color: '#fcd9a0' }}>
               <Scale className="size-4" /> Public jury
             </p>
-            <span className="text-xs font-medium" style={{ color: '#92400e' }}>
+            <span className="text-xs font-medium" style={{ color: '#fcd9a0' }}>
               {votingOpen
                 ? `Voting closes in ${formatDuration(escrow.disputeEndsAt - now)}`
                 : 'Voting closed — ready to settle'}
@@ -412,19 +429,19 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
 
           {/* Tally bar */}
           <div className="mt-3">
-            <div className="flex h-2.5 overflow-hidden rounded-full" style={{ background: 'rgba(18,45,69,0.10)' }}>
-              <div style={{ width: `${payeePct}%`, background: '#1061a6', transition: 'width .4s' }} />
-              <div style={{ flex: 1, background: '#d97706' }} />
+            <div className="flex h-2.5 overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.10)' }}>
+              <div style={{ width: `${payeePct}%`, background: '#3e8fe0', transition: 'width .4s' }} />
+              <div style={{ flex: 1, background: '#f5a524' }} />
             </div>
             <div className="mt-1.5 flex justify-between text-xs font-medium">
-              <span style={{ color: '#1061a6' }}>Pay payee · {escrow.payeeVotes.toString()}</span>
-              <span style={{ color: '#b45309' }}>{escrow.payerVotes.toString()} · Refund payer</span>
+              <span style={{ color: '#5ea9ff' }}>Pay payee · {escrow.payeeVotes.toString()}</span>
+              <span style={{ color: '#f5a524' }}>{escrow.payerVotes.toString()} · Refund payer</span>
             </div>
           </div>
 
           {/* Evidence */}
           <div className="mt-3 space-y-1.5">
-            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#92400e' }}>Evidence on chain</p>
+            <p className="mono text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: '#fcd9a0' }}>Evidence on chain</p>
             {evidence.length === 0 ? (
               <p className="text-xs" style={{ color: 'var(--muted)' }}>
                 {isParty ? 'No evidence submitted yet — add yours below.' : 'No evidence links published yet.'}
@@ -447,7 +464,7 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
                   onChange={(e) => setEvidenceUri(e.target.value)}
                   placeholder="Evidence link (IPFS / URL)"
                   className="min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-xs outline-none"
-                  style={{ borderColor: 'var(--border)', background: 'rgba(255,255,255,0.8)', color: 'var(--ink)' }}
+                  style={{ borderColor: 'var(--border)', background: 'rgba(255,255,255,0.06)', color: 'var(--ink)' }}
                 />
                 <button
                   disabled={isBusy || !evidenceUri.trim()}
@@ -468,7 +485,7 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
             ) : isParty ? (
               <p className="text-xs" style={{ color: 'var(--muted)' }}>Parties can't vote in their own dispute.</p>
             ) : hasVotedHere ? (
-              <p className="flex items-center gap-1 text-xs font-medium" style={{ color: 'var(--success)' }}>
+              <p className="flex items-center gap-1 text-xs font-medium" style={{ color: '#4ade80' }}>
                 <Vote className="size-3.5" /> Your vote is in.
               </p>
             ) : votingOpen ? (
@@ -485,7 +502,7 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
       )}
 
       {escrow.state === 5 && (
-        <div className="mt-3 rounded-2xl px-3.5 py-2.5 text-xs" style={{ background: 'rgba(124,58,237,0.08)', color: '#5b21b6' }}>
+        <div className="mt-3 rounded-2xl px-3.5 py-2.5 text-xs" style={{ background: 'rgba(167,139,250,0.10)', color: '#c4b5fd' }}>
           <span className="flex items-center gap-1.5 font-medium">
             <Gavel className="size-3.5" />
             Settled by public jury — {escrow.payeeVotes.toString()} votes for payee, {escrow.payerVotes.toString()} for payer.
@@ -496,8 +513,8 @@ export default function EscrowCard({ escrow, onAction, highlighted }: Props) {
       {(escrow.state === 2 || escrow.state === 3) && (
         <div className="mt-3 flex items-center gap-1.5 text-xs" style={{ color: 'var(--muted)' }}>
           {escrow.state === 2
-            ? <><CheckCircle className="size-3.5" style={{ color: 'var(--success)' }} /> Payment released to payee</>
-            : <><XCircle className="size-3.5" style={{ color: 'var(--danger)' }} /> Refunded to payer</>
+            ? <><CheckCircle className="size-3.5" style={{ color: '#4ade80' }} /> Payment released to payee</>
+            : <><XCircle className="size-3.5" style={{ color: '#fda4af' }} /> Refunded to payer</>
           }
         </div>
       )}
@@ -520,9 +537,9 @@ function ActionBtn({
 }) {
   const colors: Record<string, { bg: string; text: string }> = {
     primary: { bg: 'var(--accent)', text: '#fff' },
-    success: { bg: 'rgba(26,128,71,0.12)', text: 'var(--success)' },
-    danger: { bg: 'rgba(186,43,76,0.10)', text: 'var(--danger)' },
-    warn: { bg: 'rgba(217,119,6,0.14)', text: '#92400e' },
+    success: { bg: 'rgba(47,191,113,0.14)', text: '#4ade80' },
+    danger: { bg: 'rgba(251,113,133,0.12)', text: '#fda4af' },
+    warn: { bg: 'rgba(245,165,36,0.14)', text: '#fcd9a0' },
   };
   const c = colors[variant];
   return (
