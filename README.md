@@ -97,3 +97,30 @@ Mainnet demo flows (0.01 USDC each, real funds):
 The hosted app is this Studio-built frontend configured for Arc Mainnet
 (`src/contract.ts`, `src/config.ts`), built with `vite.pages.config.ts`
 (single-file build) and published to the `gh-pages` branch.
+
+## MilePay V2 — public jury, payroll streams, agent settlement (Arc Mainnet)
+
+V2 keeps the v1 escrow semantics and adds three primitives. The source
+(`contracts/MilePayV2.sol`) was adopted verbatim by Arc Studio, passed its dual
+audits, and is deployed on both networks:
+
+| Item | Value |
+|---|---|
+| MilePayV2 (mainnet) | `0x91de4E76fb4e7809B4C6e00FF65F5e7D8331A887` |
+| Deploy tx | `0x02e35b7e7fef03de7544953034f742bcdd291c5ce75585d26cb23459cd51fb32` |
+| MilePayV2 (testnet, Studio) | `0xe2a5f9a111434367be08792c554d70a0b1a8e4dd` |
+
+Mainnet demonstrations (real USDC):
+
+- **Core release**: create `0x071069bdd6e6b81533ded12fe27797aca3d03be5957f8d93937622752572135e` → deliver `0xc3a82eb62187f4ddd55fa5bd7830b06d6c68b30aa4c51b418cebd244b089752c` → release `0x71253b4849cdcbc5138def2f7777be549c294e363d09359450846255769a807b`
+- **Public jury dispute**: escrow delivered, payer disputed, both sides submitted evidence, three independent juror wallets voted 2:1 for the payee, and `resolveDispute` paid the payee in full — resolve tx `0x09b325ebf476b72287bc44f865c7226ca256357922676cb3dc4b8514df282a4b`
+- **Payroll stream**: 3 periods × 0.003 USDC at 90 s per period — create `0xcf38d488a0af0aed92fc3502904bcb7b2367d6bed23b548a4bc86eae3d3fede0`, claim after vesting `0x60dc8ab5e77d69cd9a639e6120c148014af06079ed7e2466e30f91f6fab619a3`, cancel with unvested refund `0xcb7bc8e6bf7e47a9355653a519f05622704ca82054e65205cc5b83efd5dbd534`
+- **Agent-to-agent**: two autonomous agents settled a paid micro-job with no human clicks — HirerAgent funded escrow `0x5ceebe11e722a0564f446db1e9eaee80e290064c41230d1f15e3dd6fc194b463`, WorkerAgent delivered `0x4ff2dfabd6f0f39ba87d7ec416d61d73d539aaac0883bde80bcbe321aae786d2`, HirerAgent verified the deliverable hash and released `0xbd241ad88a51226eb184f90c461d3b2b19cfa982b31c2f74d33d67b563609451` (script: `agent/run-agent-demo.mjs`)
+- **Live jury escrow (open for anyone to judge)**: escrow #3 on the mainnet V2 contract is sitting in `Disputed` state with a 10-day jury window from 2026-10-24 — connect a wallet in the app and cast a vote.
+
+How the jury works: either party can freeze an escrow into dispute before
+settlement; both sides publish evidence links on-chain; any address that is not
+a party may vote once during the jury window; the majority wins the full
+amount and a tie splits 50/50. Known limitation, stated plainly: one address
+one vote is sybil-able — stake-weighted juror selection is the roadmap answer,
+not a hidden flaw.
