@@ -1,0 +1,9 @@
+{"level":"debug","message":"[vite] hot updated: /src/App.tsx","timestamp":1792840981134}
+{"level":"debug","message":"[vite] hot updated: /src/index.css","timestamp":1792840981134}
+{"level":"warn","message":"It looks like there are several instances of 'styled-components' initialized in this application. This may cause dynamic styles to not render properly, errors during the rehydration process, a missing theme prop, and makes your application bigger without good reason.\n\nSee https://s-c.sh/2BAXzed for more info.","timestamp":1792840991990}
+{"level":"debug","message":"[vite] hot updated: /src/App.tsx","timestamp":1792840992110}
+{"level":"debug","message":"[vite] hot updated: /src/index.css","timestamp":1792840992110}
+{"level":"debug","message":"[vite] hot updated: /src/App.tsx","timestamp":1792841046681}
+{"level":"debug","message":"[vite] hot updated: /src/index.css","timestamp":1792841046682}
+{"level":"debug","message":"[vite] hot updated: /src/App.tsx","timestamp":1792841049022}
+{"level":"debug","message":"[vite] hot updated: /src/index.css","timestamp":1792841049023}
