@@ -1,11 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ConnectKitButton } from 'connectkit';
-import { useAccount, useReadContracts } from 'wagmi';
+import { useAccount, useReadContracts, useBalance } from 'wagmi';
 import {
   Plus, ShieldCheck, ExternalLink, Copy, Eye, Scale, CalendarClock,
   Bot, Landmark, Lock, PackageCheck, Vote, Code2, ArrowUpRight,
   Wallet, CircleDollarSign, Milestone, LayoutDashboard, Gavel,
-  Search, HandCoins, History,
+  Search, HandCoins, History, UserRound, BellRing, CheckCircle2, Copy as CopyIcon,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Amount, formatAmount } from '@/onchain-money';
@@ -15,6 +15,7 @@ import StreamCard from '@/components/StreamCard';
 import CreateEscrowSheet from '@/components/CreateEscrowSheet';
 import CreateStreamSheet from '@/components/CreateStreamSheet';
 import type { EscrowData, StreamData } from '@/types';
+import { useNow } from '@/hooks';
 
 const EXPLORER = 'https://explorer.arc.io';
 const STUDIO_URL = 'https://studio.arc.io/app/810ab724-d29a-4b75-98e1-3c3dfe1105e5';
@@ -33,7 +34,7 @@ const AGENT_TXS = [
   { label: 'HirerAgent verifies & releases', tx: '0xbd241ad88a51226eb184f90c461d3b2b19cfa982b31c2f74d33d67b563609451' },
 ];
 
-type View = 'overview' | 'escrows' | 'jury' | 'payroll' | 'agents';
+type View = 'overview' | 'escrows' | 'jury' | 'payroll' | 'agents' | 'mine';
 type Filter = 'all' | 'mine' | 'active' | 'disputed' | 'settled';
 type Sort = 'new' | 'amount-desc' | 'amount-asc';
 
@@ -263,6 +264,7 @@ export default function App() {
             <NavItem active={view === 'jury'} onClick={() => setView('jury')} icon={Gavel} label="Jury Center" badge={openCases.length || undefined} alert={openCases.length > 0} />
             <NavItem active={view === 'payroll'} onClick={() => setView('payroll')} icon={CalendarClock} label="Payroll" badge={stats.streams} />
             <NavItem active={view === 'agents'} onClick={() => setView('agents')} icon={Bot} label="Agents" />
+            <NavItem active={view === 'mine'} onClick={() => setView('mine')} icon={UserRound} label="My MilePay" />
             <div className="ml-auto flex shrink-0 gap-2 pl-3">
               <button onClick={() => setCreateEscrowOpen(true)} className="flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[13px] font-semibold text-white transition hover:opacity-90 active:scale-95" style={{ background: 'var(--accent)' }}>
                 <Plus className="size-4" /> New escrow
@@ -399,6 +401,20 @@ export default function App() {
             />
             <AgentsPanel agentEscrow={agentEscrow} onAction={refreshAll} goEscrows={() => setView('escrows')} />
           </section>
+        )}
+
+        {view === 'mine' && (
+          <MyView
+            escrows={escrows}
+            streams={streams}
+            openCases={openCases}
+            agentEscrow={agentEscrow}
+            onAction={refreshAll}
+            goEscrows={() => setView('escrows')}
+            goPayroll={() => setView('payroll')}
+            goJury={() => setView('jury')}
+            goAgents={() => setView('agents')}
+          />
         )}
 
         <footer className="mt-14 border-t pt-6 text-xs" style={{ borderColor: 'var(--border)', color: 'var(--subtle)' }}>
@@ -725,5 +741,196 @@ function AgentsPanel({ agentEscrow, onAction, goEscrows }: { agentEscrow?: Escro
         </div>
       </div>
     </div>
+  );
+}
+
+function fmtNative(v: bigint) {
+  const n = Number(v) / 1e18;
+  return n.toLocaleString('en-US', { maximumFractionDigits: 4 });
+}
+
+function MyView({
+  escrows, streams, openCases, agentEscrow, onAction, goEscrows, goPayroll, goJury, goAgents,
+}: {
+  escrows: EscrowData[];
+  streams: StreamData[];
+  openCases: EscrowData[];
+  agentEscrow?: EscrowData;
+  onAction: () => void;
+  goEscrows: () => void;
+  goPayroll: () => void;
+  goJury: () => void;
+  goAgents: () => void;
+}) {
+  const { address, isConnected } = useAccount();
+  const { data: bal } = useBalance({ address, chainId: ARC_CHAIN_ID, query: { enabled: !!address } });
+  const now = useNow();
+  const me = address?.toLowerCase();
+
+  if (!isConnected || !address || !me) {
+    return (
+      <section className="pt-8">
+        <ViewHead kicker="05 · My MilePay" title="Your corner of MilePay" sub="Connect a wallet and this page becomes yours: everything you're funding, everything you're owed, what needs your signature next, your payroll, your jury eligibility — and your agent activity." />
+        <div className="rounded-3xl px-6 py-12 text-center" style={{ background: 'var(--surface-strong)', border: '1px solid var(--border)' }}>
+          <span className="mx-auto flex size-14 items-center justify-center rounded-full" style={{ background: 'rgba(16,97,166,0.10)', color: 'var(--accent)' }}>
+            <Wallet className="size-7" />
+          </span>
+          <p className="display mt-4 text-lg font-bold" style={{ color: 'var(--ink)' }}>No wallet connected</p>
+          <p className="mx-auto mt-1 max-w-md text-sm" style={{ color: 'var(--muted)' }}>
+            Use the Connect Wallet button at the top. Once connected, your escrows, action items, payroll and agent jobs appear here automatically — read straight from the contract.
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-2 text-xs" style={{ color: 'var(--ink-2)' }}>
+            {['Escrows I fund', 'Work I deliver', 'Action items', 'My payroll', 'Jury votes I can cast', 'Agent jobs'].map((t) => (
+              <span key={t} className="rounded-full px-3 py-1.5" style={{ background: 'rgba(18,45,69,0.06)' }}>{t}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const myEscrows = escrows.filter((e) => e.payer.toLowerCase() === me || e.payee.toLowerCase() === me);
+  const iFund = myEscrows.filter((e) => e.payer.toLowerCase() === me);
+  const iEarn = myEscrows.filter((e) => e.payee.toLowerCase() === me);
+  const myStreams = streams.filter((s) => s.payer.toLowerCase() === me || s.payee.toLowerCase() === me);
+  const myClaimableStreams = myStreams.filter((s) => s.payee.toLowerCase() === me && s.claimablePeriods > 0n);
+  const claimableUsdc = myClaimableStreams.reduce((a, s) => a + s.amountPerPeriod * s.claimablePeriods, 0n);
+  const votable = openCases.filter((e) => e.payer.toLowerCase() !== me && e.payee.toLowerCase() !== me);
+  const myCases = openCases.filter((e) => e.payer.toLowerCase() === me || e.payee.toLowerCase() === me);
+  const agentMine = agentEscrow && (agentEscrow.payer.toLowerCase() === me || agentEscrow.payee.toLowerCase() === me);
+
+  type Action = { key: string; text: string; go: () => void; cta: string };
+  const actions: Action[] = [];
+  for (const e of myEscrows) {
+    if (e.state === 1 && e.payee.toLowerCase() === me && e.deliveredAt > 0n && now >= e.deliveredAt + e.reviewWindowSeconds) {
+      actions.push({ key: `claim-${e.id}`, text: `Escrow #${e.id} “${e.title}” — the review window has passed. Claim ${fmtUsdc(e.amount)} USDC now.`, go: goEscrows, cta: 'Open escrow' });
+    }
+    if (e.state === 1 && e.payer.toLowerCase() === me) {
+      actions.push({ key: `release-${e.id}`, text: `Escrow #${e.id} “${e.title}” — work is delivered and waiting for your release of ${fmtUsdc(e.amount)} USDC.`, go: goEscrows, cta: 'Review & release' });
+    }
+    if (e.state === 0 && e.payer.toLowerCase() === me && now > e.deadline) {
+      actions.push({ key: `refund-${e.id}`, text: `Escrow #${e.id} “${e.title}” — the deadline passed with no delivery. You can refund ${fmtUsdc(e.amount)} USDC.`, go: goEscrows, cta: 'Refund' });
+    }
+    if (e.state === 0 && e.payee.toLowerCase() === me && now <= e.deadline) {
+      actions.push({ key: `deliver-${e.id}`, text: `Escrow #${e.id} “${e.title}” — you're the payee. Deliver the work to start the review clock.`, go: goEscrows, cta: 'Deliver' });
+    }
+  }
+  for (const s of myClaimableStreams) {
+    actions.push({ key: `stream-${s.id}`, text: `Payroll “${s.title}” — ${s.claimablePeriods.toString()} period(s) vested: ${fmtUsdc(s.amountPerPeriod * s.claimablePeriods)} USDC is claimable.`, go: goPayroll, cta: 'Claim pay' });
+  }
+
+  return (
+    <section className="pt-8">
+      <ViewHead kicker="05 · My MilePay" title="Your corner of MilePay" sub="Everything tied to your wallet, read live from the MilePayV2 contract." />
+
+      {/* Identity strip */}
+      <div className="mb-5 flex flex-wrap items-center gap-4 rounded-3xl p-5" style={{ background: 'var(--surface-strong)', border: '1px solid var(--border)' }}>
+        <span className="flex size-12 items-center justify-center rounded-full text-lg font-bold text-white" style={{ background: `linear-gradient(135deg, #${address.slice(2, 8)}, #${address.slice(-6)})` }}>
+          {address.slice(2, 4).toUpperCase()}
+        </span>
+        <div className="min-w-0">
+          <p className="mono flex items-center gap-2 text-sm font-semibold" style={{ color: 'var(--ink)' }}>
+            <span className="truncate">{address}</span>
+            <button onClick={() => copyText(address, 'Address copied')} className="shrink-0 rounded-md p-1 transition hover:bg-black/5" aria-label="Copy address">
+              <CopyIcon className="size-3.5" style={{ color: 'var(--muted)' }} />
+            </button>
+            <a href={`${EXPLORER}/address/${address}`} target="_blank" rel="noreferrer" className="shrink-0 rounded-md p-1 transition hover:bg-black/5" aria-label="View on explorer">
+              <ExternalLink className="size-3.5" style={{ color: 'var(--muted)' }} />
+            </a>
+          </p>
+          <p className="text-xs" style={{ color: 'var(--muted)' }}>Connected on Arc Mainnet (5042)</p>
+        </div>
+        <div className="ml-auto text-right">
+          <p className="mono text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--muted)' }}>USDC balance</p>
+          <p className="display text-2xl font-bold tabular-nums" style={{ color: 'var(--ink)' }}>
+            {bal ? `${fmtNative(bal.value)} USDC` : '…'}
+          </p>
+        </div>
+      </div>
+
+      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <MiniStat label="Escrows I fund" value={String(iFund.length)} />
+        <MiniStat label="Jobs I'm delivering" value={String(iEarn.length)} />
+        <MiniStat label="Claimable payroll" value={`${fmtUsdc(claimableUsdc)} USDC`} />
+        <MiniStat label="Jury votes I can cast" value={String(votable.length)} />
+      </div>
+
+      {/* Action items */}
+      <h2 className="display mb-3 flex items-center gap-2 text-lg font-bold" style={{ color: 'var(--ink)' }}>
+        <BellRing className="size-5" style={{ color: 'var(--accent)' }} /> Needs your action
+      </h2>
+      {actions.length === 0 ? (
+        <div className="mb-8 flex items-center gap-2.5 rounded-2xl px-4 py-3.5 text-sm" style={{ background: 'rgba(26,128,71,0.08)', color: 'var(--success)', border: '1px solid rgba(26,128,71,0.22)' }}>
+          <CheckCircle2 className="size-5 shrink-0" /> Nothing is waiting on you right now. New deliveries, claims and votes will show up here.
+        </div>
+      ) : (
+        <div className="mb-8 space-y-2">
+          {actions.map((a) => (
+            <div key={a.key} className="flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3" style={{ background: 'rgba(217,119,6,0.07)', border: '1px solid rgba(217,119,6,0.28)' }}>
+              <span className="text-sm" style={{ color: '#92400e' }}>{a.text}</span>
+              <button onClick={a.go} className="ml-auto shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold text-white transition hover:opacity-90" style={{ background: '#b45309' }}>
+                {a.cta}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* My escrows */}
+      <h2 className="display mb-3 text-lg font-bold" style={{ color: 'var(--ink)' }}>My escrows</h2>
+      {myEscrows.length === 0 ? (
+        <div className="mb-8"><Empty text="This wallet isn't a party to any escrow yet. Create one from New escrow, or ask a client to fund a milestone for you." /></div>
+      ) : (
+        <div className="mb-8 grid gap-4 xl:grid-cols-2">
+          {myEscrows.map((e) => (
+            <EscrowCard key={e.id.toString()} escrow={e} onAction={onAction} />
+          ))}
+        </div>
+      )}
+
+      {/* My payroll */}
+      <h2 className="display mb-3 text-lg font-bold" style={{ color: 'var(--ink)' }}>My payroll</h2>
+      {myStreams.length === 0 ? (
+        <div className="mb-8"><Empty text="No payroll streams involve this wallet yet." /></div>
+      ) : (
+        <div className="mb-8 grid gap-4 xl:grid-cols-2">
+          {myStreams.map((s) => (
+            <StreamCard key={s.id.toString()} stream={s} onAction={onAction} />
+          ))}
+        </div>
+      )}
+
+      {/* Jury & agents */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-3xl p-5" style={{ background: 'var(--surface-strong)', border: '1px solid var(--border)' }}>
+          <h3 className="display flex items-center gap-2 text-sm font-bold" style={{ color: 'var(--ink)' }}>
+            <Gavel className="size-4" style={{ color: 'var(--accent)' }} /> Jury & me
+          </h3>
+          <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+            {votable.length > 0
+              ? `You can vote in ${votable.length} open case(s) — you're not a party, so your ballot counts.`
+              : myCases.length > 0
+                ? `You're a party in ${myCases.length} open case(s) — parties can't vote in their own disputes, but you can submit evidence there.`
+                : 'No open cases involve you, and none are awaiting your vote right now.'}
+          </p>
+          <button onClick={goJury} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold hover:underline" style={{ color: 'var(--accent)' }}>
+            Enter the Jury Center <ArrowUpRight className="size-4" />
+          </button>
+        </div>
+        <div className="rounded-3xl p-5" style={{ background: 'var(--surface-strong)', border: '1px solid var(--border)' }}>
+          <h3 className="display flex items-center gap-2 text-sm font-bold" style={{ color: 'var(--ink)' }}>
+            <Bot className="size-4" style={{ color: 'var(--accent)' }} /> Agents & me
+          </h3>
+          <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+            {agentMine
+              ? `This wallet took part in the live agent-to-agent run: escrow #${agentEscrow!.id.toString()} “${agentEscrow!.title}” settled automatically once the result hash verified.`
+              : 'This wallet has no agent jobs yet. The public agent-to-agent run — one AI hiring another, settled in 17 seconds — lives in the Agents room, and any wallet can be hired the same way.'}
+          </p>
+          <button onClick={goAgents} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold hover:underline" style={{ color: 'var(--accent)' }}>
+            Open the Agents room <ArrowUpRight className="size-4" />
+          </button>
+        </div>
+      </div>
+    </section>
   );
 }
