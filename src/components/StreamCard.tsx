@@ -98,7 +98,7 @@ export default function StreamCard({ stream, onAction }: Props) {
       style={{
         background: 'var(--surface-strong)',
         border: '1px solid var(--border)',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.28)',
+        boxShadow: '0 1px 4px rgba(18,45,69,0.07)',
       }}
     >
       <div className="flex items-start justify-between gap-2">
@@ -136,7 +136,7 @@ export default function StreamCard({ stream, onAction }: Props) {
                 ? 'var(--success)'
                 : seg.vested
                   ? 'var(--accent)'
-                  : 'rgba(255,255,255,0.10)',
+                  : 'rgba(18,45,69,0.10)',
             }}
           />
         ))}
