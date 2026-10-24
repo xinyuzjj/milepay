@@ -40,7 +40,6 @@ contract MilePayEscrow is ReentrancyGuard {
     error InvalidAmount();
     error InvalidDeadline();
     error InvalidReviewWindow();
-    error SamePayee();
 
     event EscrowCreated(
         uint256 indexed id,
@@ -53,7 +52,6 @@ contract MilePayEscrow is ReentrancyGuard {
     event Delivered(uint256 indexed id, uint256 deliveredAt);
     event Released(uint256 indexed id);
     event Refunded(uint256 indexed id);
-    event PayeeUpdated(uint256 indexed id, address indexed oldPayee, address indexed newPayee);
 
     constructor() {
         _escrowCount = 1;
@@ -142,24 +140,6 @@ contract MilePayEscrow is ReentrancyGuard {
         IERC20(USDC).safeTransfer(escrow.payer, escrow.amount);
 
         emit Refunded(id);
-    }
-
-    /**
-     * @notice Payer may redirect the payee to a new address while the escrow is still
-     *         Funded or Delivered.  Provides a recovery path if the original payee
-     *         address becomes un-receivable (e.g., blocklisted on Arc USDC).
-     */
-    function updatePayee(uint256 id, address newPayee) external {
-        if (newPayee == address(0)) revert InvalidPayee();
-        Escrow storage escrow = _escrows[id];
-        if (msg.sender != escrow.payer) revert NotPayer();
-        if (escrow.state != State.Funded && escrow.state != State.Delivered) revert InvalidState();
-        if (newPayee == escrow.payee) revert SamePayee();
-
-        address oldPayee = escrow.payee;
-        escrow.payee = newPayee;
-
-        emit PayeeUpdated(id, oldPayee, newPayee);
     }
 
     function getEscrow(uint256 id) external view returns (Escrow memory) {

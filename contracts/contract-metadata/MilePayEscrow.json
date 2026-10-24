@@ -1,13 +1,27 @@
 {
-  "contractAddress": "0xdae6aa0bd15299b8c37a15e132cf5e67ac3d8e02",
+  "contractAddress": "0xbfa6176e074bc704cdc9350c0694362438eb00f6",
   "network": "ARC-TESTNET",
   "deployerWalletId": "3c2464b2-8369-52e2-a782-800bbeca5396",
   "contract_code_path": "/home/user/app/contracts/MilePayEscrow.sol",
   "contract_compiled_code_path": "/home/user/app/contracts/out/MilePayEscrow.sol/MilePayEscrow.json",
   "contract_network_and_links": {
-    "Arc Testnet": "https://explorer.testnet.arc.io/address/0xdae6aa0bd15299b8c37a15e132cf5e67ac3d8e02"
+    "Arc Testnet": "https://explorer.testnet.arc.io/address/0xbfa6176e074bc704cdc9350c0694362438eb00f6"
   },
   "contract_deployments": [
+    {
+      "chain": "Arc Testnet",
+      "address": "0xbfa6176e074bc704cdc9350c0694362438eb00f6",
+      "explorerUrl": "https://explorer.testnet.arc.io/address/0xbfa6176e074bc704cdc9350c0694362438eb00f6",
+      "txHash": "0x19e72807f02ac7bb5687f1ab3dd49ea12b4d9a5155108c6c130e925f8aed26c4",
+      "deployedAt": "2026-10-24T11:41:59.429Z"
+    },
+    {
+      "chain": "Arc Testnet",
+      "address": "0x21214f551a9653773b03d2e31a1a30a210ec438b",
+      "explorerUrl": "https://explorer.testnet.arc.io/address/0x21214f551a9653773b03d2e31a1a30a210ec438b",
+      "txHash": "0x9566d76fd722936a20a4cd24a51c5fb80bfbc06a6ccd220fbd79ab8f8e8fa1a5",
+      "deployedAt": "2026-10-24T11:39:19.784Z"
+    },
     {
       "chain": "Arc Testnet",
       "address": "0xdae6aa0bd15299b8c37a15e132cf5e67ac3d8e02",
@@ -201,24 +215,6 @@
       "stateMutability": "nonpayable"
     },
     {
-      "type": "function",
-      "name": "updatePayee",
-      "inputs": [
-        {
-          "name": "id",
-          "type": "uint256",
-          "internalType": "uint256"
-        },
-        {
-          "name": "newPayee",
-          "type": "address",
-          "internalType": "address"
-        }
-      ],
-      "outputs": [],
-      "stateMutability": "nonpayable"
-    },
-    {
       "type": "event",
       "name": "Delivered",
       "inputs": [
@@ -276,31 +272,6 @@
           "type": "string",
           "indexed": false,
           "internalType": "string"
-        }
-      ],
-      "anonymous": false
-    },
-    {
-      "type": "event",
-      "name": "PayeeUpdated",
-      "inputs": [
-        {
-          "name": "id",
-          "type": "uint256",
-          "indexed": true,
-          "internalType": "uint256"
-        },
-        {
-          "name": "oldPayee",
-          "type": "address",
-          "indexed": true,
-          "internalType": "address"
-        },
-        {
-          "name": "newPayee",
-          "type": "address",
-          "indexed": true,
-          "internalType": "address"
         }
       ],
       "anonymous": false
@@ -391,11 +362,6 @@
           "internalType": "address"
         }
       ]
-    },
-    {
-      "type": "error",
-      "name": "SamePayee",
-      "inputs": []
     }
   ]
 }

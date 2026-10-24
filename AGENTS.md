@@ -14,9 +14,13 @@ MilePay is a milestone-based USDC escrow app on Arc Testnet. Payers lock USDC in
 
 | Contract | Network | Address |
 |---|---|---|
-| MilePayEscrow | Arc Testnet | 0xdae6aa0bd15299b8c37a15e132cf5e67ac3d8e02 |
+| MilePayEscrow v3 (current) | Arc Testnet | 0xbfa6176e074bc704cdc9350c0694362438eb00f6 |
+| MilePayEscrow v2 (deprecated) | Arc Testnet | 0x21214f551a9653773b03d2e31a1a30a210ec438b |
+| MilePayEscrow v1 (deprecated) | Arc Testnet | 0xdae6aa0bd15299b8c37a15e132cf5e67ac3d8e02 |
 
-Explorer: https://explorer.testnet.arc.io/address/0xdae6aa0bd15299b8c37a15e132cf5e67ac3d8e02
+Explorer: https://explorer.testnet.arc.io/address/0xbfa6176e074bc704cdc9350c0694362438eb00f6
+
+v3 vs original: exactly three removals — `updatePayee` function, `PayeeUpdated` event, `SamePayee` error. No other changes.
 
 ## Tech Stack
 
