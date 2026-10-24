@@ -25,6 +25,7 @@ export default function CreateEscrowSheet({ open, onClose, onCreated }: Props) {
   const [amount, setAmount] = useState('');
   const [deadline, setDeadline] = useState('');
   const [reviewHours, setReviewHours] = useState('24');
+  const [juryHours, setJuryHours] = useState('72');
   const [title, setTitle] = useState('');
 
   // Step 1: approve
@@ -55,11 +56,12 @@ export default function CreateEscrowSheet({ open, onClose, onCreated }: Props) {
     const parsed = parseAmount(ARC_CHAIN_ID, amount);
     const deadlineTs = BigInt(Math.floor(new Date(deadline).getTime() / 1000));
     const reviewSecs = BigInt(Math.floor(parseFloat(reviewHours) * 3600));
+    const jurySecs = BigInt(Math.floor(parseFloat(juryHours || '0') * 3600));
     create({
       address: MILEPAY_ESCROW.address,
       abi: MILEPAY_ESCROW.abi,
       functionName: 'createEscrow',
-      args: [payee as `0x${string}`, parsed.raw, deadlineTs, reviewSecs, title],
+      args: [payee as `0x${string}`, parsed.raw, deadlineTs, reviewSecs, jurySecs, title],
     });
   };
 
@@ -87,6 +89,7 @@ export default function CreateEscrowSheet({ open, onClose, onCreated }: Props) {
     setAmount('');
     setDeadline('');
     setReviewHours('24');
+    setJuryHours('72');
     setTitle('');
     onClose();
   }
@@ -113,7 +116,7 @@ export default function CreateEscrowSheet({ open, onClose, onCreated }: Props) {
     if (approveConfirming) return 'Approving USDC...';
     if (createWaiting) return 'Confirm escrow in wallet...';
     if (createConfirming) return 'Creating escrow...';
-    if (wrongChain) return 'Switch to Arc Testnet';
+    if (wrongChain) return 'Switch to Arc';
     return 'Create Escrow';
   };
 
@@ -272,6 +275,29 @@ export default function CreateEscrowSheet({ open, onClose, onCreated }: Props) {
                 />
                 <p className="mt-1 text-xs" style={{ color: 'var(--subtle)' }}>
                   After delivery, you have this long to release. After this window the payee can claim automatically.
+                </p>
+              </div>
+
+              {/* Jury window */}
+              <div>
+                <label className="text-xs font-semibold" style={{ color: 'var(--muted)' }}>
+                  Public jury window (hours, 0 = disputes off)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={juryHours}
+                  onChange={(e) => setJuryHours(e.target.value)}
+                  className="mt-1 w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition focus:ring-2 tabular-nums"
+                  style={{
+                    borderColor: 'var(--border)',
+                    background: 'var(--surface-muted)',
+                    color: 'var(--ink)',
+                  }}
+                />
+                <p className="mt-1 text-xs" style={{ color: 'var(--subtle)' }}>
+                  If either side disputes, the escrow freezes and the public votes for this long. Majority wins; a tie splits 50/50.
                 </p>
               </div>
 
