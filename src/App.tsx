@@ -73,8 +73,8 @@ export default function App() {
 
   const { data: countData, refetch: refetchCount } = useReadContracts({
     contracts: [
-      { address: MILEPAY_ESCROW.address, abi: MILEPAY_ESCROW.abi, functionName: 'escrowCount' },
-      { address: MILEPAY_ESCROW.address, abi: MILEPAY_ESCROW.abi, functionName: 'streamCount' },
+      { chainId: ARC_CHAIN_ID, address: MILEPAY_ESCROW.address, abi: MILEPAY_ESCROW.abi, functionName: 'escrowCount' },
+      { chainId: ARC_CHAIN_ID, address: MILEPAY_ESCROW.address, abi: MILEPAY_ESCROW.abi, functionName: 'streamCount' },
     ],
   });
   const escrowCount = (countData?.[0]?.result as bigint | undefined) ?? 0n;
@@ -83,6 +83,7 @@ export default function App() {
   const escrowCalls = useMemo(() => {
     const n = Number(escrowCount);
     return Array.from({ length: n }, (_, i) => ({
+      chainId: ARC_CHAIN_ID,
       address: MILEPAY_ESCROW.address,
       abi: MILEPAY_ESCROW.abi,
       functionName: 'getEscrow',
@@ -100,12 +101,14 @@ export default function App() {
     const calls = [];
     for (let i = 1; i <= n; i++) {
       calls.push({
+        chainId: ARC_CHAIN_ID,
         address: MILEPAY_ESCROW.address,
         abi: MILEPAY_ESCROW.abi,
         functionName: 'getStream',
         args: [BigInt(i)],
       });
       calls.push({
+        chainId: ARC_CHAIN_ID,
         address: MILEPAY_ESCROW.address,
         abi: MILEPAY_ESCROW.abi,
         functionName: 'claimablePeriods',
@@ -125,21 +128,21 @@ export default function App() {
     return escrowResults
       .map((r, i) => {
         if (r.status !== 'success' || !r.result) return null;
-        const t = r.result as unknown as readonly unknown[];
+        const t = r.result as unknown as Record<string, unknown>;
         return {
           id: BigInt(i + 1),
-          payer: t[0] as string,
-          payee: t[1] as string,
-          amount: t[2] as bigint,
-          deadline: t[3] as bigint,
-          reviewWindowSeconds: t[4] as bigint,
-          deliveredAt: t[5] as bigint,
-          juryWindowSeconds: t[6] as bigint,
-          disputeEndsAt: t[7] as bigint,
-          payeeVotes: t[8] as bigint,
-          payerVotes: t[9] as bigint,
-          state: Number(t[10]),
-          title: t[11] as string,
+          payer: t.payer as string,
+          payee: t.payee as string,
+          amount: t.amount as bigint,
+          deadline: t.deadline as bigint,
+          reviewWindowSeconds: t.reviewWindowSeconds as bigint,
+          deliveredAt: t.deliveredAt as bigint,
+          juryWindowSeconds: t.juryWindowSeconds as bigint,
+          disputeEndsAt: t.disputeEndsAt as bigint,
+          payeeVotes: t.payeeVotes as bigint,
+          payerVotes: t.payerVotes as bigint,
+          state: Number(t.state),
+          title: t.title as string,
         } as EscrowData;
       })
       .filter((e): e is EscrowData => e !== null)
@@ -153,19 +156,19 @@ export default function App() {
       const g = streamResults[i];
       const c = streamResults[i + 1];
       if (g.status !== 'success' || !g.result) continue;
-      const t = g.result as unknown as readonly unknown[];
+      const t = g.result as unknown as Record<string, unknown>;
       out.push({
         id: BigInt(i / 2 + 1),
-        payer: t[0] as string,
-        payee: t[1] as string,
-        amountPerPeriod: t[2] as bigint,
-        periodSeconds: t[3] as bigint,
-        totalPeriods: t[4] as bigint,
-        claimedPeriods: t[5] as bigint,
-        startTime: t[6] as bigint,
-        cancelled: t[7] as boolean,
-        vestedCap: t[8] as bigint,
-        title: t[9] as string,
+        payer: t.payer as string,
+        payee: t.payee as string,
+        amountPerPeriod: t.amountPerPeriod as bigint,
+        periodSeconds: t.periodSeconds as bigint,
+        totalPeriods: t.totalPeriods as bigint,
+        claimedPeriods: t.claimedPeriods as bigint,
+        startTime: t.startTime as bigint,
+        cancelled: t.cancelled as boolean,
+        vestedCap: t.vestedCap as bigint,
+        title: t.title as string,
         claimablePeriods: c.status === 'success' ? (c.result as bigint) : 0n,
       });
     }

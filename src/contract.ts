@@ -2,6 +2,7 @@ import type { Abi } from 'viem';
 import artifactV1 from '../contracts/out/MilePayEscrow.sol/MilePayEscrow.json';
 import artifactV2 from '../contracts/out/MilePayV2.sol/MilePayV2.json';
 
+
 // MilePay V1 — the original Studio-built escrow, live on Arc Mainnet since
 // 2026-10-24. Kept for reference; the app now runs on V2.
 export const MILEPAY_ESCROW_V1 = {
