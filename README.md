@@ -92,6 +92,7 @@ Mainnet demo flows (0.01 USDC each, real funds):
 
 - **Release path**: create `0x57c80b6930d020938b57fef5dbf56f7bb23575451da391e09744a2bd422196dd` → deliver `0x08b611c87b8e7ef479f33377d96ae84f6802a4c555f3255d893a029b86541f74` → release `0x9fca4d5d90f6fc9d2605fab7435d7941075984370013d4730fc57d90b074afd7`
 - **Refund path**: create `0x9495ab797ff66036a628cec5c4623c43a802c27d348b3fda7d857734748ae018` → refund after deadline `0xdaf32a89ffb49ddebdf99a710f663ff11b3125c699fdf0aa91029510d2efa052`
+- **Auto-claim path**: create `0x809e36c06606f8eb08f9f3d8ffd2d4585db02f5c4c223c67f43b73ec36edbff9` → deliver `0x8b17f888adbccbd7eb5612b3e6db47c052c555dd8dd2c9e8500791eb59ccce0e` → payer stays silent → payee `claimAfterReview` after the 60s review window `0xb2ece32e6d3548e236ae9b4ac6421b5647a46c6a554a3ce774b3e19042d02311`
 
 The hosted app is this Studio-built frontend configured for Arc Mainnet
 (`src/contract.ts`, `src/config.ts`), built with `vite.pages.config.ts`
